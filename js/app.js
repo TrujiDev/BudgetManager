@@ -7,6 +7,19 @@ function eventListeners() {
 	document.addEventListener('DOMContentLoaded', askBudget);
 }
 
+class Budget {
+	constructor(budget) {
+		this.budget = Number(budget);
+		this.remaining = Number(budget);
+		this.expenses = [];
+	}
+}
+
+class UI { }
+
+const ui = new UI();
+let budget;
+
 function askBudget() {
 	const userBudget = prompt('What is your budget?');
 
@@ -17,5 +30,8 @@ function askBudget() {
 		userBudget <= 0
 	) {
 		window.location.reload();
-	}
+    }
+    
+    budget = new Budget(userBudget);
+    console.log(budget);
 }

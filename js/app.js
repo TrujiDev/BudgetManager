@@ -5,6 +5,7 @@ eventListeners();
 
 function eventListeners() {
 	document.addEventListener('DOMContentLoaded', askBudget);
+	form.addEventListener('submit', addExpense);
 }
 
 class Budget {
@@ -21,6 +22,27 @@ class UI {
 
 		document.querySelector('#total').textContent = budget;
 		document.querySelector('#remaining').textContent = remaining;
+	}
+
+	showAlert(message, type) {
+		const messageBox = document.createElement('div');
+		messageBox.classList.add('text-center', 'alert');
+
+		if (type === 'error') {
+			messageBox.classList.add('alert-danger');
+		} else {
+			messageBox.classList.add('alert-success');
+		}
+
+		messageBox.textContent = message;
+
+		document.querySelector('.primary').insertBefore(messageBox, form);
+
+		setTimeout(() => {
+			messageBox.remove();
+		}, 3000);
+
+		form.reset();
 	}
 }
 
@@ -42,4 +64,19 @@ function askBudget() {
 	budget = new Budget(userBudget);
 
 	ui.insertBudget(budget);
+}
+
+function addExpense(event) {
+	event.preventDefault();
+
+	const expense = document.querySelector('#expense').value;
+	const quantity = document.querySelector('#quantity').value;
+
+	if (expense === '' || quantity === '') {
+		ui.showAlert('Please fill all fields', 'error');
+		return;
+	} else if (quantity <= 0 || isNaN(quantity)) {
+		ui.showAlert('Quantity is not valid', 'error');
+		return;
+	}
 }

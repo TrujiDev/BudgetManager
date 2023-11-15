@@ -15,7 +15,14 @@ class Budget {
 	}
 }
 
-class UI { }
+class UI {
+	insertBudget(quantity) {
+		const { budget, remaining } = quantity;
+
+		document.querySelector('#total').textContent = budget;
+		document.querySelector('#remaining').textContent = remaining;
+	}
+}
 
 const ui = new UI();
 let budget;
@@ -30,8 +37,9 @@ function askBudget() {
 		userBudget <= 0
 	) {
 		window.location.reload();
-    }
-    
-    budget = new Budget(userBudget);
-    console.log(budget);
+	}
+
+	budget = new Budget(userBudget);
+
+	ui.insertBudget(budget);
 }

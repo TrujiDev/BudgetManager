@@ -14,6 +14,11 @@ class Budget {
 		this.remaining = Number(budget);
 		this.expenses = [];
 	}
+
+	newExpense(expense) {
+		this.expenses = [...this.expenses, expense];
+		console.log(this.expenses);
+	}
 }
 
 class UI {
@@ -41,8 +46,6 @@ class UI {
 		setTimeout(() => {
 			messageBox.remove();
 		}, 3000);
-
-		form.reset();
 	}
 }
 
@@ -70,7 +73,7 @@ function addExpense(event) {
 	event.preventDefault();
 
 	const expense = document.querySelector('#expense').value;
-	const quantity = document.querySelector('#quantity').value;
+	const quantity = Number(document.querySelector('#quantity').value);
 
 	if (expense === '' || quantity === '') {
 		ui.showAlert('Please fill all fields', 'error');
@@ -79,4 +82,16 @@ function addExpense(event) {
 		ui.showAlert('Quantity is not valid', 'error');
 		return;
 	}
+
+	spending = {
+		expense,
+		quantity,
+		id: Date.now(),
+	};
+
+	budget.newExpense(spending);
+
+	ui.showAlert('Expense added successfully');
+
+	form.reset();
 }

@@ -78,8 +78,27 @@ class UI {
 		});
 	}
 
-	updateRemaining(remaining) { 
+	updateRemaining(remaining) {
 		document.querySelector('#remaining').textContent = remaining;
+	}
+
+	checkBudget(budgetObj) {
+		const { budget, remaining } = budgetObj;
+
+		const remainingDiv = document.querySelector('.remaining');
+
+		if ((budget / 4) > remaining) {
+			remainingDiv.classList.remove('alert-success', 'alert-warning');
+			remainingDiv.classList.add('alert-danger');
+		} else if ((budget / 2) > remaining) {
+			remainingDiv.classList.remove('alert-success');
+			remainingDiv.classList.add('alert-warning');
+		}
+
+		if (remaining <= 0) {
+			this.showAlert('Budget is over', 'error');
+			form.querySelector('button[type="submit"]').disabled = true;
+		}
 	}
 
 	cleanHTML() {
@@ -137,6 +156,8 @@ function addExpense(event) {
 	ui.addExpenseToList(expenses);
 
 	ui.updateRemaining(remaining);
+
+	ui.checkBudget(budget);
 
 	form.reset();
 }

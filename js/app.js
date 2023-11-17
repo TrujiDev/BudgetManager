@@ -28,6 +28,11 @@ class Budget {
 
 		this.remaining = this.budget - spent;
 	}
+
+	deleteExpense(id) {
+		this.expenses = this.expenses.filter(expense => expense.id !== id);
+		this.calculateRemaining();
+	}
 }
 
 class UI {
@@ -57,7 +62,7 @@ class UI {
 		}, 3000);
 	}
 
-	addExpenseToList(expenses) {
+	showExpenses(expenses) {
 		this.cleanHTML();
 
 		expenses.forEach(expense => {
@@ -72,6 +77,9 @@ class UI {
 			const deleteBtn = document.createElement('button');
 			deleteBtn.classList.add('btn', 'btn-danger', 'delete-expense');
 			deleteBtn.innerHTML = 'Delete &times;';
+			deleteBtn.onclick = () => {
+				deleteExpense(id);
+			};
 			newExpense.appendChild(deleteBtn);
 
 			expenseList.appendChild(newExpense);
@@ -80,6 +88,7 @@ class UI {
 
 	updateRemaining(remaining) {
 		document.querySelector('#remaining').textContent = remaining;
+		this.checkBudget({ budget: budget.remaining, remaining });
 	}
 
 	checkBudget(budgetObj) {
@@ -87,12 +96,15 @@ class UI {
 
 		const remainingDiv = document.querySelector('.remaining');
 
-		if ((budget / 4) > remaining) {
+		if (budget / 4 > remaining) {
 			remainingDiv.classList.remove('alert-success', 'alert-warning');
 			remainingDiv.classList.add('alert-danger');
-		} else if ((budget / 2) > remaining) {
-			remainingDiv.classList.remove('alert-success');
+		} else if (budget / 2 > remaining) {
+			remainingDiv.classList.remove('alert-success', 'alert-danger');
 			remainingDiv.classList.add('alert-warning');
+		} else {
+			remainingDiv.classList.remove('alert-danger', 'alert-warning');
+			remainingDiv.classList.add('alert-success');
 		}
 
 		if (remaining <= 0) {
@@ -153,11 +165,22 @@ function addExpense(event) {
 	ui.showAlert('Expense added successfully');
 
 	const { expenses, remaining } = budget;
-	ui.addExpenseToList(expenses);
+	ui.showExpenses(expenses);
 
 	ui.updateRemaining(remaining);
 
 	ui.checkBudget(budget);
 
 	form.reset();
+}
+
+function deleteExpense(id) {
+	budget.deleteExpense(id);
+
+	const { expenses, remaining } = budget;
+	ui.showExpenses(expenses);
+
+	ui.updateRemaining(remaining);
+
+	ui.checkBudget(budget);
 }

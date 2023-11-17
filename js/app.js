@@ -17,6 +17,16 @@ class Budget {
 
 	newExpense(expense) {
 		this.expenses = [...this.expenses, expense];
+		this.calculateRemaining();
+	}
+
+	calculateRemaining() {
+		const spent = this.expenses.reduce(
+			(total, expense) => total + expense.quantity,
+			0
+		);
+
+		this.remaining = this.budget - spent;
 	}
 }
 
@@ -66,6 +76,10 @@ class UI {
 
 			expenseList.appendChild(newExpense);
 		});
+	}
+
+	updateRemaining(remaining) { 
+		document.querySelector('#remaining').textContent = remaining;
 	}
 
 	cleanHTML() {
@@ -119,8 +133,10 @@ function addExpense(event) {
 
 	ui.showAlert('Expense added successfully');
 
-	const { expenses } = budget;
+	const { expenses, remaining } = budget;
 	ui.addExpenseToList(expenses);
+
+	ui.updateRemaining(remaining);
 
 	form.reset();
 }

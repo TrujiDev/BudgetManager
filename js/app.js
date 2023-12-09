@@ -1,218 +1,245 @@
-// Selecting the form and expense list elements from the HTML
 const form = document.querySelector('#add-expense');
 const expenseList = document.querySelector('#expenses ul');
 
-// Setting up event listeners when the DOM content is loaded
 eventListeners();
 
 function eventListeners() {
-    document.addEventListener('DOMContentLoaded', askBudget); // When the DOM content is loaded, ask for the budget
-    form.addEventListener('submit', addExpense); // When the form is submitted, add the expense
+	document.addEventListener('DOMContentLoaded', askBudget);
+	form.addEventListener('submit', addExpense);
 }
 
-// Defining a Budget class to manage budget-related operations
+/**
+ * Represents a budget with its remaining amount and expenses.
+ * @class
+ */
 class Budget {
-    constructor(budget) {
-        this.budget = Number(budget); // Initial budget
-        this.remaining = Number(budget); // Remaining budget initialized to the total budget
-        this.expenses = []; // Array to store individual expenses
-    }
+	/**
+	 * Represents a BudgetManager object.
+	 * @constructor
+	 * @param {number} budget - The initial budget value.
+	 */
+	constructor(budget) {
+		this.budget = Number(budget);
+		this.remaining = Number(budget);
+		this.expenses = [];
+	}
 
-    // Method to add a new expense to the expenses array
-    newExpense(expense) {
-        this.expenses = [...this.expenses, expense]; // Using the spread operator to create a new array with the existing expenses and the new one
-        this.calculateRemaining(); // Recalculate the remaining budget after adding a new expense
-    }
+	/**
+	 * Adds a new expense to the expenses array and calculates the remaining budget.
+	 * @param {object} expense - The expense to be added.
+	 */
+	newExpense(expense) {
+		this.expenses = [...this.expenses, expense];
+		this.calculateRemaining();
+	}
 
-    // Method to calculate the remaining budget based on the total budget and expenses
-    calculateRemaining() {
-        const spent = this.expenses.reduce(
-            (total, expense) => total + expense.quantity,
-            0
-        );
+	/**
+	 * Calculates the remaining budget by subtracting the total spent amount from the budget.
+	 */
+	calculateRemaining() {
+		const spent = this.expenses.reduce(
+			(total, expense) => total + expense.quantity,
+			0
+		);
 
-        this.remaining = this.budget - spent;
-    }
+		this.remaining = this.budget - spent;
+	}
 
-    // Method to delete an expense from the expenses array
-    deleteExpense(id) {
-        this.expenses = this.expenses.filter(expense => expense.id !== id);
-        this.calculateRemaining(); // Recalculate the remaining budget after deleting an expense
-    }
+	/**
+	 * Deletes an expense from the expenses array based on the provided id.
+	 * @param {number} id - The id of the expense to be deleted.
+	 */
+	deleteExpense(id) {
+		this.expenses = this.expenses.filter(expense => expense.id !== id);
+		this.calculateRemaining();
+	}
 }
 
-// Defining a UI class to handle user interface operations
+/**
+ * Represents the UI class for managing the user interface of the budget manager application.
+ */
 class UI {
-    // Method to display the initial budget in the UI
-    insertBudget(quantity) {
-        const { budget, remaining } = quantity;
+	/**
+	 * Inserts the budget and remaining values into the DOM.
+	 *
+	 * @param {Object} quantity - The budget and remaining values.
+	 * @param {number} quantity.budget - The total budget.
+	 * @param {number} quantity.remaining - The remaining budget.
+	 */
+	insertBudget(quantity) {
+		const { budget, remaining } = quantity;
 
-        document.querySelector('#total').textContent = budget;
-        document.querySelector('#remaining').textContent = remaining;
-    }
+		document.querySelector('#total').textContent = budget;
+		document.querySelector('#remaining').textContent = remaining;
+	}
 
-    // Method to display alert messages in the UI
-    showAlert(message, type) {
-        // Creating a new div element for the alert message
-        const messageBox = document.createElement('div');
-        messageBox.classList.add('text-center', 'alert');
+	/**
+	 * Displays an alert message on the screen.
+	 * @param {string} message - The message to be displayed.
+	 * @param {string} type - The type of the alert ('error' or 'success').
+	 */
+	showAlert(message, type) {
+		const messageBox = document.createElement('div');
+		messageBox.classList.add('text-center', 'alert');
 
-        // Adding different classes based on the alert type
-        if (type === 'error') {
-            messageBox.classList.add('alert-danger');
-        } else {
-            messageBox.classList.add('alert-success');
-        }
+		if (type === 'error') {
+			messageBox.classList.add('alert-danger');
+		} else {
+			messageBox.classList.add('alert-success');
+		}
 
-        messageBox.textContent = message;
+		messageBox.textContent = message;
 
-        // Inserting the alert message before the form in the UI
-        document.querySelector('.primary').insertBefore(messageBox, form);
+		document.querySelector('.primary').insertBefore(messageBox, form);
 
-        // Setting a timeout to remove the alert message after 3 seconds
-        setTimeout(() => {
-            messageBox.remove();
-        }, 3000);
-    }
+		setTimeout(() => {
+			messageBox.remove();
+		}, 3000);
+	}
 
-    // Method to display the list of expenses in the UI
-    showExpenses(expenses) {
-        this.cleanHTML(); // Clearing the existing list of expenses
+	/**
+	 * Renders the list of expenses on the UI.
+	 *
+	 * @param {Array} expenses - The array of expenses to be displayed.
+	 */
+	showExpenses(expenses) {
+		this.cleanHTML();
 
-        expenses.forEach(expense => {
-            const { nameExpense, quantity, id } = expense;
+		expenses.forEach(expense => {
+			const { nameExpense, quantity, id } = expense;
 
-            const newExpense = document.createElement('LI');
-            newExpense.className =
-                'list-group-item d-flex justify-content-between align-items-center';
-            newExpense.dataset.id = id;
-            newExpense.innerHTML = `${nameExpense} <span class="badge badge-primary badge-pill">$ ${quantity}</span>`;
+			const newExpense = document.createElement('LI');
+			newExpense.className =
+				'list-group-item d-flex justify-content-between align-items-center';
+			newExpense.dataset.id = id;
+			newExpense.innerHTML = `${nameExpense} <span class="badge badge-primary badge-pill">$ ${quantity}</span>`;
 
-            // Creating a delete button for each expense
-            const deleteBtn = document.createElement('button');
-            deleteBtn.classList.add('btn', 'btn-danger', 'delete-expense');
-            deleteBtn.innerHTML = 'Delete &times;';
-            deleteBtn.onclick = () => {
-                deleteExpense(id);
-            };
-            newExpense.appendChild(deleteBtn);
+			const deleteBtn = document.createElement('button');
+			deleteBtn.classList.add('btn', 'btn-danger', 'delete-expense');
+			deleteBtn.innerHTML = 'Delete &times;';
+			deleteBtn.onclick = () => {
+				deleteExpense(id);
+			};
+			newExpense.appendChild(deleteBtn);
 
-            // Appending the new expense to the expense list in the UI
-            expenseList.appendChild(newExpense);
-        });
-    }
+			expenseList.appendChild(newExpense);
+		});
+	}
 
-    // Method to update the remaining budget in the UI
-    updateRemaining(remaining) {
-        document.querySelector('#remaining').textContent = remaining;
-        this.checkBudget({ budget: budget.remaining, remaining });
-    }
+	/**
+	 * Updates the remaining budget and checks if it exceeds the budget limit.
+	 * @param {number} remaining - The updated remaining budget.
+	 */
+	updateRemaining(remaining) {
+		document.querySelector('#remaining').textContent = remaining;
+		this.checkBudget({ budget: budget.remaining, remaining });
+	}
 
-    // Method to check the budget status and update the UI accordingly
-    checkBudget(budgetObj) {
-        const { budget, remaining } = budgetObj;
+	/**
+	 * Checks the budget and updates the UI accordingly.
+	 * @param {Object} budgetObj - The budget object containing the budget and remaining amount.
+	 */
+	checkBudget(budgetObj) {
+		const { budget, remaining } = budgetObj;
 
-        const remainingDiv = document.querySelector('.remaining');
+		const remainingDiv = document.querySelector('.remaining');
 
-        if (budget / 4 > remaining) {
-            remainingDiv.classList.remove('alert-success', 'alert-warning');
-            remainingDiv.classList.add('alert-danger');
-        } else if (budget / 2 > remaining) {
-            remainingDiv.classList.remove('alert-success', 'alert-danger');
-            remainingDiv.classList.add('alert-warning');
-        } else {
-            remainingDiv.classList.remove('alert-danger', 'alert-warning');
-            remainingDiv.classList.add('alert-success');
-        }
+		if (budget / 4 > remaining) {
+			remainingDiv.classList.remove('alert-success', 'alert-warning');
+			remainingDiv.classList.add('alert-danger');
+		} else if (budget / 2 > remaining) {
+			remainingDiv.classList.remove('alert-success', 'alert-danger');
+			remainingDiv.classList.add('alert-warning');
+		} else {
+			remainingDiv.classList.remove('alert-danger', 'alert-warning');
+			remainingDiv.classList.add('alert-success');
+		}
 
-        // Displaying an alert if the remaining budget is zero or negative
-        if (remaining <= 0) {
-            this.showAlert('Budget is over', 'error');
-            form.querySelector('button[type="submit"]').disabled = true;
-        }
-    }
+		if (remaining <= 0) {
+			this.showAlert('Budget is over', 'error');
+			form.querySelector('button[type="submit"]').disabled = true;
+		}
+	}
 
-    // Method to clear the list of expenses in the UI
-    cleanHTML() {
-        while (expenseList.firstChild) {
-            expenseList.removeChild(expenseList.firstChild);
-        }
-    }
+	/**
+	 * Removes all child elements from the expenseList element, effectively cleaning the HTML.
+	 */
+	cleanHTML() {
+		while (expenseList.firstChild) {
+			expenseList.removeChild(expenseList.firstChild);
+		}
+	}
 }
 
-// Creating an instance of the UI class
 const ui = new UI();
 let budget;
 
-// Function to prompt the user for the initial budget
+/**
+ * Prompts the user for their budget and initializes the Budget object.
+ */
 function askBudget() {
-    const userBudget = prompt('What is your budget?');
+	const userBudget = prompt('What is your budget?');
 
-    // If the user cancels or enters an invalid value, reload the page
-    if (
-        userBudget === null ||
-        userBudget === '' ||
-        isNaN(userBudget) ||
-        userBudget <= 0
-    ) {
-        window.location.reload();
-    }
+	if (
+		userBudget === null ||
+		userBudget === '' ||
+		isNaN(userBudget) ||
+		userBudget <= 0
+	) {
+		window.location.reload();
+	}
 
-    // Creating a new Budget instance with the user's budget
-    budget = new Budget(userBudget);
+	budget = new Budget(userBudget);
 
-    // Displaying the initial budget in the UI
-    ui.insertBudget(budget);
+	ui.insertBudget(budget);
 }
 
-// Function to add a new expense
+/**
+ * Adds an expense to the budget manager.
+ * @param {Event} event - The event object.
+ * @returns {void}
+ */
 function addExpense(event) {
-    event.preventDefault();
+	event.preventDefault();
 
-    // Getting values from the form
-    const nameExpense = document.querySelector('#expense').value;
-    const quantity = Number(document.querySelector('#quantity').value);
+	const nameExpense = document.querySelector('#expense').value;
+	const quantity = Number(document.querySelector('#quantity').value);
 
-    // Validating the input values
-    if (nameExpense === '' || quantity === '') {
-        ui.showAlert('Please fill all fields', 'error');
-        return;
-    } else if (quantity <= 0 || isNaN(quantity)) {
-        ui.showAlert('Quantity is not valid', 'error');
-        return;
-    }
+	if (nameExpense === '' || quantity === '') {
+		ui.showAlert('Please fill all fields', 'error');
+		return;
+	} else if (quantity <= 0 || isNaN(quantity)) {
+		ui.showAlert('Quantity is not valid', 'error');
+		return;
+	}
 
-    // Creating a new expense object
-    const expense = {
-        nameExpense,
-        quantity,
-        id: Date.now(),
-    };
+	const expense = {
+		nameExpense,
+		quantity,
+		id: Date.now(),
+	};
 
-    // Adding the new expense to the budget
-    budget.newExpense(expense);
+	budget.newExpense(expense);
 
-    // Displaying a success alert
-    ui.showAlert('Expense added successfully');
+	ui.showAlert('Expense added successfully');
 
-    // Updating the UI with the list of expenses and remaining budget
-    const { expenses, remaining } = budget;
-    ui.showExpenses(expenses);
-    ui.updateRemaining(remaining);
-    ui.checkBudget(budget);
+	const { expenses, remaining } = budget;
+	ui.showExpenses(expenses);
+	ui.updateRemaining(remaining);
+	ui.checkBudget(budget);
 
-    // Resetting the form fields
-    form.reset();
+	form.reset();
 }
 
-// Function to delete an expense
+/**
+ * Deletes an expense from the budget.
+ * @param {string} id - The ID of the expense to be deleted.
+ */
 function deleteExpense(id) {
-    // Deleting the expense from the budget
-    budget.deleteExpense(id);
+	budget.deleteExpense(id);
 
-    // Updating the UI with the updated list of expenses and remaining budget
-    const { expenses, remaining } = budget;
-    ui.showExpenses(expenses);
-    ui.updateRemaining(remaining);
-    ui.checkBudget(budget);
+	const { expenses, remaining } = budget;
+	ui.showExpenses(expenses);
+	ui.updateRemaining(remaining);
+	ui.checkBudget(budget);
 }
